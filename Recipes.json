@@ -1,0 +1,319 @@
+{
+	"recipes":[
+		{
+			"RecipeId":0,
+			"Input":[
+				{"Part":"Iron Ingot","Quantity":30}
+			],
+			"Output":[
+				{"Part":"Iron Plate","Quantity":20}
+			]
+		},
+		{
+			"RecipeId":1,
+			"Input":[
+				{"Part":"Iron Ingot","Quantity":15}
+			],
+			"Output":[
+				{"Part":"Iron Rod","Quantity":15}
+			]
+		},
+		{
+			"RecipeId":2,
+			"Input":[
+				{"Part":"Iron Rod","Quantity":10}
+			],
+			"Output":[
+				{"Part":"Screw","Quantity":40}
+			]
+		},
+		{
+			"RecipeId":3,
+			"Input":[
+				{"Part":"Iron Plate","Quantity":30},
+				{"Part":"Screw","Quantity":60}
+			],
+			"Output":[
+				{"Part":"Reinforced Iron Plate","Quantity":40}
+			]
+		},
+		{
+			"RecipeId":4,
+			"Input":[
+				{"Part":"Copper Ore","Quantity":30}
+			],
+			"Output":[
+				{"Part":"Copper Ingot","Quantity":30}
+			]
+		},
+		{
+			"RecipeId":5,
+			"Input":[
+				{"Part":"Copper Ingot","Quantity":15}
+			],
+			"Output":[
+				{"Part":"Wire","Quantity":30}
+			]
+		},
+		{
+			"RecipeId":6,
+			"Input":[
+				{"Part":"Wire","Quantity":60}
+			],
+			"Output":[
+				{"Part":"Cable","Quantity":30}
+			]
+		},
+		{
+			"RecipeId":7,
+			"Input":[
+				{"Part":"Copper Ingot","Quantity":20}
+			],
+			"Output":[
+				{"Part":"Copper Sheet","Quantity":10}
+			]
+		},
+		{
+			"RecipeId":8,
+			"Input":[
+				{"Part":"Reinforced Iron Plate","Quantity":3},
+				{"Part":"Iron Rod","Quantity":12}
+			],
+			"Output":[
+				{"Part":"Modular Frame","Quantity":2}
+			]
+		},
+		{
+			"RecipeId":9,
+			"Input":[
+				{"Part":"Iron Rod","Quantity":20},
+				{"Part":"Screw","Quantity":100}
+			],
+			"Output":[
+				{"Part":"Rotor","Quantity":4}
+			]
+		},
+		{
+			"RecipeId":10,
+			"Input":[
+				{"Part":"Iron Ore","Quantity":45},
+				{"Part":"Coal Ore","Quantity":45}
+			],
+			"Output":[
+				{"Part":"Steel Ingot","Quantity":45}
+			]
+		},
+		{
+			"RecipeId":11,
+			"Input":[
+				{"Part":"Steel Ingot","Quantity":30}
+			],
+			"Output":[
+				{"Part":"Steel Pipe","Quantity":20}
+			]
+		},
+		{
+			"RecipeId":12,
+			"Input":[
+				{"Part":"Steel Ingot","Quantity":60}
+			],
+			"Output":[
+				{"Part":"Steel Beam","Quantity":15}
+			]
+		},
+		{
+			"RecipeId":13,
+			"Input":[
+				{"Part":"Limestone Ore","Quantity":45}
+			],
+			"Output":[
+				{"Part":"Concrete","Quantity":15}
+			]
+		},
+		{
+			"RecipeId":14,
+			"Input":[
+				{"Part":"Steel Beam","Quantity":18},
+				{"Part":"Concrete","Quantity":36}
+			],
+			"Output":[
+				{"Part":"Encased Industrial Beam","Quantity":15}
+			]
+		},
+		{
+			"RecipeId":15,
+			"Input":[
+				{"Part":"Steel Pipe","Quantity":15},
+				{"Part":"Wire","Quantity":40}
+			],
+			"Output":[
+				{"Part":"Stator","Quantity":5}
+			]
+		},
+		{
+			"RecipeId":16,
+			"Input":[
+				{"Part":"Rotor","Quantity":10},
+				{"Part":"Stator","Quantity":10}
+			],
+			"Output":[
+				{"Part":"Motor","Quantity":5}
+			]
+		},
+		{
+			"RecipeId":17,
+			"Input":[
+				{"Part":"Caterium Ore","Quantity":45}
+			],
+			"Output":[
+				{"Part":"Caterium Ingot","Quantity":15}
+			]
+		},
+		{
+			"RecipeId":18,
+			"Input":[
+				{"Part":"Caterium Ingot","Quantity":12}
+			],
+			"Output":[
+				{"Part":"Quickwire","Quantity":60}
+			]
+		},
+		{
+			"RecipeId":19,
+			"Input":[
+				{"Part":"Copper Sheet","Quantity":25},
+				{"Part":"Quickwire","Quantity":100}
+			],
+			"Output":[
+				{"Part":"AI Limiter","Quantity":5}
+			]
+		},
+		{
+			"RecipeId":20,
+			"Input":[
+				{"Part":"Polymer Resin","Quantity":60},
+				{"Part":"Water","Quantity":20}
+			],
+			"Output":[
+				{"Part":"Plastic","Quantity":20}
+			]
+		},
+		{
+			"RecipeId":21,
+			"Input":[
+				{"Part":"Copper Sheet","Quantity":15},
+				{"Part":"Plastic","Quantity":30}
+			],
+			"Output":[
+				{"Part":"Circuit Board","Quantity":7.5}
+			]
+		},
+		{
+			"RecipeId":22,
+			"Input":[
+				{"Part":"Quickwire","Quantity":210},
+				{"Part":"Cable","Quantity":37.5},
+				{"Part":"Circuit Board","Quantity":3.75}
+			],
+			"Output":[
+				{"Part":"High-Speed Connector","Quantity":3.75}
+			]
+		},
+		{
+			"RecipeId":23,
+			"Input":[
+				{"Part":"Raw Quartz","Quantity":37.5}
+			],
+			"Output":[
+				{"Part":"Quartz Crystal","Quantity":22.5}
+			]
+		},
+		{
+			"RecipeId":24,
+			"Input":[
+				{"Part":"Quartz Crystal","Quantity":18},
+				{"Part":"Cable","Quantity":14},
+				{"Part":"Reinforced Iron Plate","Quantity":2.5}
+			],
+			"Output":[
+				{"Part":"Crystal Oscillator","Quantity":1}
+			]
+		},
+		{
+			"RecipeId":25,
+			"Input":[
+				{"Part":"Stator","Quantity":2.5},
+				{"Part":"Cable","Quantity":50}
+			],
+			"Output":[
+				{"Part":"Automated Wiring","Quantity":2.5}
+			]
+		},
+		{
+			"RecipeId":26,
+			"Input":[
+				{"Part":"Circuit Board","Quantity":10},
+				{"Part":"Cable","Quantity":20},
+				{"Part":"Plastic","Quantity":40}
+			],
+			"Output":[
+				{"Part":"Computer","Quantity":2.5}
+			]
+		},
+		{
+			"RecipeId":27,
+			"Input":[
+				{"Part":"Modular Frame","Quantity":10},
+				{"Part":"Steel Pipe","Quantity":40},
+				{"Part":"Encased Industrial Beam","Quantity":10},
+				{"Part":"Screw","Quantity":240}
+			],
+			"Output":[
+				{"Part":"Heavy Modular Frame","Quantity":2}
+			]
+		},
+		{
+			"RecipeId":28,
+			"Input":[
+				{"Part":"Reinforced Iron Plate","Quantity":2},
+				{"Part":"Rotor","Quantity":2}
+			],
+			"Output":[
+				{"Part":"Smart Plating","Quantity":2}
+			]
+		},
+		{
+			"RecipeId":29,
+			"Input":[
+				{"Part":"Automated Wiring","Quantity":5},
+				{"Part":"Circuit Board","Quantity":5},
+				{"Part":"Heavy Modular Frame","Quantity":1},
+				{"Part":"Computer","Quantity":2}
+			],
+			"Output":[
+				{"Part":"Adaptive Control Unit","Quantity":1}
+			]
+		},
+		{
+			"RecipeId":30,
+			"Input":[
+				{"Part":"Polymer Resin","Quantity":40},
+				{"Part":"Water","Quantity":40}
+			],
+			"Output":[
+				{"Part":"Rubber","Quantity":20}
+			]
+		},
+		{
+			"RecipeId":31,
+			"Input":[
+				{"Part":"Motor","Quantity":2},
+				{"Part":"Rubber","Quantity":15},
+				{"Part":"Smart Plating","Quantity":2}
+			],
+			"Output":[
+				{"Part":"Modular Engine","Quantity":1}
+			]
+		}
+	]
+}

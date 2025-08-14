@@ -1,0 +1,188 @@
+{
+  "parts": [
+    {
+      "name": "Iron Ore",
+      "img": ""
+    },
+    {
+      "name": "Copper Ore",
+      "img": ""
+    },
+    {
+      "name": "Limestone Ore",
+      "img": ""
+    },
+    {
+      "name": "Coal Ore",
+      "img": ""
+    },
+    {
+      "name": "Caterium Ore",
+      "img": ""
+    },
+    {
+      "name": "Raw Quartz",
+      "img": ""
+    },
+    {
+      "name": "Sulfur Ore",
+      "img": ""
+    },
+    {
+      "name": "Water",
+      "img": ""
+    },
+    {
+      "name": "Crude Oil",
+      "img": ""
+    },
+    {
+      "name": "Heavy Oil Residue",
+      "img": ""
+    },
+    {
+      "name": "Fuel",
+      "img": ""
+    },
+    {
+      "name": "Turbo Fuel",
+      "img": ""
+    },
+    {
+      "name": "Iron Ingot",
+      "img": ""
+    },
+    {
+      "name": "Copper Ingot",
+      "img": ""
+    },
+    {
+      "name": "Concrete",
+      "img": ""
+    },
+    {
+      "name": "Steel Ingot",
+      "img": ""
+    },
+    {
+      "name": "Iron Plate",
+      "img": ""
+    },
+    {
+      "name": "Iron Rod",
+      "img": ""
+    },
+    {
+      "name": "Screw",
+      "img": ""
+    },
+    {
+      "name": "Reinforced Iron Plate",
+      "img": ""
+    },
+    {
+      "name": "Wire",
+      "img": ""
+    },
+    {
+      "name": "Cable",
+      "img": ""
+    },
+    {
+      "name": "Copper Sheet",
+      "img": ""
+    },
+    {
+      "name": "Modular Frame",
+      "img": ""
+    },
+    {
+      "name": "Rotor",
+      "img": ""
+    },
+    {
+      "name": "Steel Pipe",
+      "img": ""
+    },
+    {
+      "name": "Steel Beam",
+      "img": ""
+    },
+    {
+      "name": "Encased Industrial Beam",
+      "img": ""
+    },
+    {
+      "name": "Stator",
+      "img": ""
+    },
+    {
+      "name": "Motor",
+      "img": ""
+    },
+    {
+      "name": "Caterium Ingot",
+      "img": ""
+    },
+    {
+      "name": "Quickwire",
+      "img": ""
+    },
+    {
+      "name": "AI Limiter",
+      "img": ""
+    },
+    {
+      "name": "Polymer Resin",
+      "img": ""
+    },
+    {
+      "name": "Plastic",
+      "img": ""
+    },
+    {
+      "name": "Rubber",
+      "img": ""
+    },
+    {
+      "name": "Circuit Board",
+      "img": ""
+    },
+    {
+      "name": "High-Speed Connector",
+      "img": ""
+    },
+    {
+      "name": "Quartz Crystal",
+      "img": ""
+    },
+    {
+      "name": "Crystal Oscillator",
+      "img": ""
+    },
+    {
+      "name": "Automated Wiring",
+      "img": ""
+    },
+    {
+      "name": "Computer",
+      "img": ""
+    },
+    {
+      "name": "Heavy Modular Frame",
+      "img": ""
+    },
+    {
+      "name": "Smart Plating",
+      "img": ""
+    },
+    {
+      "name": "Adaptive Control Unit",
+      "img": ""
+    },
+    {
+      "name": "Modular Engine",
+      "img": ""
+    }
+  ]
+}

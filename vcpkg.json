@@ -1,0 +1,12 @@
+{
+  "name" : "stator",
+  "version" : "0.1",
+  "dependencies" : [ 
+    {
+      "name": "imgui",
+      "features": ["vulkan-binding", "glfw-binding"]
+    },
+    "glfw3",
+		"libzip"
+  ]
+}
