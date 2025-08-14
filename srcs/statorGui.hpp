@@ -94,6 +94,4 @@ class	  StatorGui {
     //GUI
     VkDescriptorPool      				m_imGuiDescPool = VK_NULL_HANDLE;
     FactoryEditor                 m_factoryEditor;
-    std::vector<Part>             m_parts;
-    std::vector<Recipe>           m_recipes;
 };

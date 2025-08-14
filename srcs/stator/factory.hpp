@@ -1,11 +1,12 @@
 #pragma once
 
+#include "stator/stator.hpp"
 #include "statorNode.hpp"
 #include <imgui.h>
 
 class FactoryNode: public StatorNode {
   public:
-    FactoryNode() {};
+    FactoryNode(FactoryNode* parent = nullptr): m_parent(parent) {};
 
     template<typename T, typename... Params>
     std::shared_ptr<T>  placeNode(Params&&... args) {
@@ -43,8 +44,8 @@ class FactoryNode: public StatorNode {
       }
       json::object  value = {
         {"type", "SNT_FACTORY_NODE"},
-        {"name", name},
-        {"filepath", filepath},
+        {"name", m_name},
+        {"filepath", m_filepath},
         {"nodes", nodesJson},
       };
       return (value);
@@ -52,8 +53,8 @@ class FactoryNode: public StatorNode {
 
     void            fromJson(json::value value) override {
       json::object& obj = value.as_object();
-      name = obj["name"].as_string();
-      filepath = obj["filepath"].as_string();
+      m_name = obj["name"].as_string();
+      m_filepath = obj["filepath"].as_string();
       for (auto& node: obj["nodes"].as_array()) {
         ImVec2  pos(node.as_object()["pos"].as_object()["x"].as_int64(), node.as_object()["pos"].as_object()["y"].as_int64());
         switch(sntFromString(node.as_object()["type"].as_string().c_str())) {
@@ -64,7 +65,7 @@ class FactoryNode: public StatorNode {
             addNode<OutputNode>(pos)->fromJson(node.as_object());
             break;
           case SNT_PART_NODE:
-            for (auto& part: *partsPtr) {
+            for (auto& part: partsGlobalArray) {
               if (part.name == node.as_object()["name"].as_string()) {
                 addNode<PartNode>(pos, part)->fromJson(node.as_object());
                 break;
@@ -74,12 +75,12 @@ class FactoryNode: public StatorNode {
           case SNT_RECIPE_NODE:
             {
               int id = node.as_object()["recipeId"].as_int64();
-              if (recipesPtr->size() < id)
-                addNode<RecipeNode>(pos, (*recipesPtr)[id])->fromJson(node.as_object());
+              if (recipesGlobalArray.size() < id)
+                addNode<RecipeNode>(pos, recipesGlobalArray[id])->fromJson(node.as_object());
             }
             break;
           case SNT_FACTORY_NODE:
-            addNode<FactoryNode>(pos)->fromJson(node.as_object());
+            addNode<FactoryNode>(pos, this)->fromJson(node.as_object());
             break;
           default:
             break;
@@ -87,34 +88,16 @@ class FactoryNode: public StatorNode {
       }
     }
 
-    static std::vector<Part>*   partsPtr;
-    static std::vector<Recipe>* recipesPtr;
-
   protected:
-    std::string name = "";
-    std::string filepath = "";
-    ImNodeFlow  m_grid;
+    std::string   m_name = "";
+    std::string   m_filepath = "";
+    ImNodeFlow    m_grid;
+    FactoryNode*  m_parent;
 };
 
-class FactoryEditor: public BaseNode {
+class FactoryEditor: public FactoryNode {
   public:
     FactoryEditor() {};
-
-    template<typename T, typename... Params>
-    std::shared_ptr<T>   placeNode(Params&&... args) {
-      std::shared_ptr<T>  node = m_grid.placeNode<T>(args...);
-      return (node);
-    }
-    template<typename T, typename... Params>
-    std::shared_ptr<T>  placeNodeAt(const ImVec2& pos, Params&&... args) {
-      std::shared_ptr<T>  node = m_grid.placeNodeAt<T>(pos, args...);
-      return (node);
-    }
-    template<typename T, typename... Params>
-    std::shared_ptr<T>  addNode(const ImVec2& pos, Params&&... args) {
-      std::shared_ptr<T>  node = m_grid.addNode<T>(pos, args...);
-      return (node);
-    }
 
     void  draw() override {
       m_grid.rightClickPopUpContent([this](BaseNode *node)
@@ -122,12 +105,12 @@ class FactoryEditor: public BaseNode {
           StatorNode* nodeStator = static_cast<StatorNode*>(node);
           if (node != nullptr) {
             ImGui::Text("%s", node->getName().c_str());
-            if (ImGui::Button("Ok"))
-              ImGui::CloseCurrentPopup();
+            ImGui::PushStyleColor(ImGuiCol_Button, {0.7, 0.1, 0.2, 1.0});
             if (ImGui::Button("Delete Node")) {
               node->destroy();
               ImGui::CloseCurrentPopup();
             }
+            ImGui::PopStyleColor();
             nodeStator->drawPopUp();
           }
           else {
@@ -161,7 +144,4 @@ class FactoryEditor: public BaseNode {
       }
       m_grid.update();
     }
-
-  protected:
-    ImNodeFlow  m_grid;
 };

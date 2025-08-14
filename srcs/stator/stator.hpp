@@ -38,7 +38,7 @@ struct  Part {
 
 struct  Recipe {
   Recipe(json::object recipeJson) {
-    id = recipeJson["RecipeId"].as_uint64();
+    id = recipeJson["RecipeId"].as_int64();
     for (auto& input: recipeJson["Input"].as_array()) {
       inputs.push_back(PartWithQuantity(input.as_object()));
     }
@@ -62,3 +62,6 @@ struct  Recipe {
   std::vector<PartWithQuantity>   inputs; 
   std::vector<PartWithQuantity>   outputs; 
 };
+
+static std::vector<Part>    partsGlobalArray;
+static std::vector<Recipe>  recipesGlobalArray;

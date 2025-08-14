@@ -157,8 +157,10 @@ struct  PartNode: public StatorNode {
   }
 
   void  drawPopUp() override {
+    ImGui::Separator();
     if (ImGui::Button("addIn"))
       addInPin();
+    ImGui::SameLine();
     if (ImGui::Button("addOut"))
       addOutPin();
     if (ImGui::Button("removeIn")) {
@@ -166,6 +168,7 @@ struct  PartNode: public StatorNode {
         removeIn();
       }
     }
+    ImGui::SameLine();
     if (ImGui::Button("removeOut"))
       removeOut();
   }
@@ -233,6 +236,7 @@ struct  RecipeNode: public StatorNode {
   }
 
   void  drawPopUp() override {
+    ImGui::Separator();
     recipe.drawPopUp();
     double  ratioMin = calcRatio();
     ImGui::Separator();

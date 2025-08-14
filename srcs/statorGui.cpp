@@ -1,4 +1,5 @@
 #include "statorGui.hpp"
+#include "stator/stator.hpp"
 #include "thread"
 #include <GLFW/glfw3.h>
 #include <boost/json/parse.hpp>
@@ -86,26 +87,24 @@ StatorGui::StatorGui(std::string partsJsonPath, std::string recipesJsonPath) {
   std::ifstream jsonPartsFile(partsJsonPath);
   json::value docParts = json::parse(jsonPartsFile);
   for (auto& part: docParts.as_object()["parts"].as_array()) {
-    m_parts.push_back(Part(part.as_object()));
+    partsGlobalArray.push_back(Part(part.as_object()));
   }
 
   std::ifstream jsonRecipesFile(recipesJsonPath);
   json::value docRecipes = json::parse(jsonRecipesFile);
   for (auto& recipe: docRecipes.as_object()["recipes"].as_array()) {
-    m_recipes.push_back(Recipe(recipe.as_object()));
+    recipesGlobalArray.push_back(Recipe(recipe.as_object()));
   }
 
-  for (auto& recipe: m_recipes) {
+  for (auto& recipe: recipesGlobalArray) {
     for (auto& out: recipe.outputs) {
-      for (auto& part: m_parts) {
+      for (auto& part: partsGlobalArray) {
         if (part.name == out.name) {
           part.addRecipe(recipe);
         }
       }
     }
   }
-  FactoryNode::partsPtr = &m_parts;
-  FactoryNode::recipesPtr = &m_recipes;
 }
 
 HephResult	StatorGui::create() {
@@ -311,17 +310,17 @@ void  StatorGui::drawPartSelector() {
     ImGui::SetNextWindowPos(ImVec2(0, m_windowInfoTopBar.size.y));
     ImGui::SetNextWindowSize(ImVec2(0, m_height - m_windowInfoTopBar.size.y));
     if (ImGui::Begin("File selector", &m_showPartSelectorPanel, ImGuiWindowFlags_NoDecoration)) {
-      for (auto& part : m_parts) {
+      for (auto& part : partsGlobalArray) {
         if (ImGui::BeginMenu(part.name.c_str())) {
           if (ImGui::Selectable(part.name.c_str()))
-            m_factoryEditor.addNode<PartNode>({0, 0}, part);
+            m_factoryEditor.placeNodeAt<PartNode>({300, 100}, part);
           int i = 1;
           for (auto& recipe: part.recipes) {
             std::string name = "recipe " + std::to_string(i);
             if (ImGui::BeginMenu(name.c_str())) {
               recipe->drawPopUp();
               if (ImGui::Selectable("ADD")) {
-                m_factoryEditor.placeNodeAt<RecipeNode>({0, 0}, *recipe);
+                m_factoryEditor.placeNodeAt<RecipeNode>({300, 100}, *recipe);
               }
               ImGui::EndMenu();
             }
