@@ -51,11 +51,11 @@ target_link_libraries(${PROJECT_NAME} PRIVATE hephaestus)
 include(FindVulkan)
 target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan)
 
-find_package(Boost 1.67 REQUIRED COMPONENTS json serialization)
-include_directories(${Boost_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} PRIVATE ${Boost_LIBRARIES} ${llvm_libs})
-
 include(${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake)
+
+find_package(Boost REQUIRED COMPONENTS json)
+include_directories(${Boost_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} PRIVATE Boost::json)
 
 find_package(glfw3 CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
