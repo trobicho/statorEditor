@@ -17,6 +17,8 @@ set(cpps
 
   srcs/statorGui.cpp
   srcs/statorGuiSetup.cpp
+
+  srcs/stator/statorNode.cpp
 )
 
 set(hpps
@@ -24,9 +26,9 @@ set(hpps
 
   srcs/guiInfo.hpp
 
-  srcs/nodeGui.hpp
-
   srcs/stator/stator.hpp
+  srcs/stator/statorNode.hpp
+  srcs/stator/factory.hpp
 )
 
 

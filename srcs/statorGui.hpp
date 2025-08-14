@@ -16,8 +16,8 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-#include "nodeGui.hpp"
-#include "stator/stator.hpp"
+#include "stator/statorNode.hpp"
+#include "stator/factory.hpp"
 
 #define	FRAMERATE	(1.0 / 60.0)
 
@@ -93,7 +93,7 @@ class	  StatorGui {
 
     //GUI
     VkDescriptorPool      				m_imGuiDescPool = VK_NULL_HANDLE;
-    NodeGui                       m_nodeGrid;
+    FactoryEditor                 m_factoryEditor;
     std::vector<Part>             m_parts;
     std::vector<Recipe>           m_recipes;
 };

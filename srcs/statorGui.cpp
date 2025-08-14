@@ -104,6 +104,8 @@ StatorGui::StatorGui(std::string partsJsonPath, std::string recipesJsonPath) {
       }
     }
   }
+  FactoryNode::partsPtr = &m_parts;
+  FactoryNode::recipesPtr = &m_recipes;
 }
 
 HephResult	StatorGui::create() {
@@ -195,7 +197,7 @@ HephResult	StatorGui::renderGui() {
 
 	if (ImGui::Begin("NodeEditor", &m_winLayout.showNodeEditor, ImGuiWindowFlags_NoDecoration)) {
 		m_winLayout.main.set();
-    m_nodeGrid.draw();
+    m_factoryEditor.draw();
   }
 	ImGui::End();
 	return (HephResult());
@@ -312,14 +314,14 @@ void  StatorGui::drawPartSelector() {
       for (auto& part : m_parts) {
         if (ImGui::BeginMenu(part.name.c_str())) {
           if (ImGui::Selectable(part.name.c_str()))
-            m_nodeGrid.addNode<PartNode>({0, 0}, part);
+            m_factoryEditor.addNode<PartNode>({0, 0}, part);
           int i = 1;
           for (auto& recipe: part.recipes) {
             std::string name = "recipe " + std::to_string(i);
             if (ImGui::BeginMenu(name.c_str())) {
               recipe->drawPopUp();
               if (ImGui::Selectable("ADD")) {
-                m_nodeGrid.addNode<RecipeNode>({0, 0}, *recipe);
+                m_factoryEditor.placeNodeAt<RecipeNode>({0, 0}, *recipe);
               }
               ImGui::EndMenu();
             }
