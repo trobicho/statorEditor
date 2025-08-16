@@ -2,9 +2,12 @@
 #include <boost/json.hpp>
 #include <functional>
 #include <imgui.h>
+#include <imgui_internal.h>
+#include <memory>
 #include <string>
+#include <vector>
 #include "ImNodeFlow.h"
-#include "stator.hpp"
+#include "data.hpp"
 
 enum StatorNodeType {
   SNT_NA,
@@ -13,18 +16,80 @@ enum StatorNodeType {
   SNT_PART_NODE,
   SNT_IN_NODE,
   SNT_OUT_NODE,
+  SNT_BALANCE_NODE,
 };
 
 StatorNodeType  sntFromString(std::string type);
 
 namespace json = boost::json;
-using namespace ImFlow;
 
-struct  StatorNode : BaseNode {
+struct  StatorNode : ImFlow::BaseNode {
+  StatorNode(){
+    nodeStyle = ImFlow::NodeStyle::cyan();
+    pinStyle = ImFlow::PinStyle::brown();
+    pinStyle->extra.padding=ImVec2(20.f,20.f);
+    //pinStyle->extra.socket_padding=20.f;
+    //pinStyle->extra.bg_color=IM_COL32(255,255,255,100);
+    pinStyle->extra.link_thickness=10.f;
+    setStyle(nodeStyle);
+
+    pinRenderer=[](ImFlow::Pin* p){
+      p->drawSocket();
+      p->drawDecoration();
+    };
+  }
+
   virtual void            drawPopUp() {;}
   virtual StatorNodeType  statorNodeType() = 0;
   virtual json::value     toJson() = 0;
   virtual void            fromJson(json::value value) {;}
+  virtual void            balance(std::vector<double> contr){;}
+
+  void  recieveConstraint(double c) {
+    int nbC = constraints.size();
+    int nbOut = getOuts().size();
+
+    if(nbC+1 < nbOut){
+      constraints.push_back(c);
+      isBalanced = false;
+      return;
+    }
+    else if(nbC+1 == nbOut){
+      constraints.push_back(c);
+      isBalanced = true;
+      balance(constraints);
+    }
+    else{
+      constraints.clear();
+      isBalanced = false;
+    }
+
+  }
+  
+  void  calcJ(std::vector<double> constr) {
+    double v = 0.f;
+    for(auto c: constr)
+      v += c;
+    balancedValue = v;
+  }
+
+  void propagate(double c) {
+    for(auto in: getIns()){
+      if(!in->isConnected()){
+        continue;
+      }
+      ImFlow::Pin* a=in->getLink().lock()->left();
+      StatorNode* n=static_cast<StatorNode*>(a->getParent());
+      n->recieveConstraint(c);
+    }
+  }
+
+  std::shared_ptr<ImFlow::NodeStyle> nodeStyle;
+  std::shared_ptr<ImFlow::PinStyle>  pinStyle;
+  std::function<void(ImFlow::Pin* p)> pinRenderer;
+  std::vector<double> constraints;
+  bool isBalanced = false;
+  double balancedValue = 0;
 };
 
 struct  InputNode: public StatorNode {
@@ -33,8 +98,15 @@ struct  InputNode: public StatorNode {
     addOUT<double>("out")->behaviour([this](){return (value);});
   }
 
+  void  balance(std::vector<double> constr) override {
+    calcJ(constr);
+    propagate(balancedValue);
+  }
+
   void  draw() override {
     ImGui::SetNextItemWidth(100.f);
+    if(isBalanced)
+      value=balancedValue;
     ImGui::InputDouble("##Val", &value);
   }
 
@@ -59,7 +131,7 @@ struct  InputNode: public StatorNode {
 struct  OutputNode: public StatorNode {
   OutputNode() {
     setTitle("Output");
-    addIN<double>("in", 0, ConnectionFilter::SameType());
+    addIN<double>("in", 0, ImFlow::ConnectionFilter::SameType());
   }
 
   void  draw() override {
@@ -80,10 +152,90 @@ struct  OutputNode: public StatorNode {
   }
 };
 
+struct  BalanceNode: public StatorNode {
+  BalanceNode(){
+    setTitle("Balance");
+    addIO(1.0);
+  }
+
+  void  addIO(double c) {
+    ioCount++;
+    double count=ioCount;
+    constraints.push_back(c);
+    std::string cnt=std::to_string(ioCount);
+    addIN<double>("in"+cnt, 0, ImFlow::ConnectionFilter::SameType(), pinStyle);
+    addOUT<double>("out"+cnt, pinStyle)->behaviour([this, count](){
+      return constraints[count-1];
+    });
+  }
+
+  void  removeIO() {
+    std::string cnt=std::to_string(ioCount);
+    dropOUT("out"+cnt);
+    dropIN("in"+cnt);
+    constraints.pop_back();
+    ioCount--;
+  }
+
+  void  draw() override {
+    int i=1;
+    for(auto& c: constraints){
+      ImGui::SetNextItemWidth(100.f);
+      ImGui::PushID(i);
+      ImGui::InputDouble("##out", &c);
+      ImGui::PopID();
+      i++;
+    }
+
+    balance();
+  }
+
+  void  balance() {
+    if(!ioCount)
+      return;
+    int i=0;
+    for(auto in: getIns()){
+      if(!in->isConnected()){
+        i++;
+        continue;
+      }
+      ImFlow::Pin* a=in->getLink().lock()->left();
+      StatorNode* n=static_cast<StatorNode*>(a->getParent());
+      n->recieveConstraint(constraints[i]);
+      i++;
+    }
+  }
+
+  void  drawPopUp() override {
+    ImGui::Separator();
+    if (ImGui::Button("addIO"))
+      addIO(1.0);
+    if (ImGui::Button("removeIO")) {
+      if (ioCount > 1) {
+        removeIO();
+      }
+    }
+  }
+
+  StatorNodeType  statorNodeType() override {
+    return (SNT_BALANCE_NODE);
+  };
+
+  json::value     toJson() override {
+    json::object value = {
+      {"type", "SNT_BALANCE_NODE"},
+    };
+    return (value);
+  }
+
+  int ioCount = 0;
+  std::vector<double> constraints;
+};
+
 struct  PartNode: public StatorNode {
   PartNode(Part& a_part): part(a_part) {
     setTitle(part.name.c_str());
-    setStyle(NodeStyle::red());
+    setStyle(ImFlow::NodeStyle::red());
 
     addInPin();
     addOutPin();
@@ -107,7 +259,7 @@ struct  PartNode: public StatorNode {
   void  addInPin() {
     inCount += 1;
     std::string name = "in" + std::to_string(inCount);
-    addIN<double>(name, 0, ConnectionFilter::SameType());
+    addIN<double>(name, 0, ImFlow::ConnectionFilter::SameType());
   }
 
   void  addOutPin(double r = 1.0) {
@@ -212,9 +364,9 @@ struct  PartNode: public StatorNode {
 struct  RecipeNode: public StatorNode {
   RecipeNode(Recipe& a_recipe): recipe(a_recipe) {
     setTitle("Recipe");
-    setStyle(NodeStyle::green());
+    setStyle(ImFlow::NodeStyle::green());
     for (auto& in: recipe.inputs) {
-      addIN<double>(in.name, 0, ConnectionFilter::SameType());
+      addIN<double>(in.name, 0, ImFlow::ConnectionFilter::SameType());
     }
     for (auto& out: recipe.outputs) {
       addOUT<double>(out.name)->behaviour([this, out](){
@@ -222,6 +374,24 @@ struct  RecipeNode: public StatorNode {
         return (ratioMin * out.quantity);
       });
     }
+  }
+
+  void balance(std::vector<double> constr){
+    //for(auto c: constr){
+      int i=0;
+      for(auto in: getIns()){
+        if(!in->isConnected())
+          continue;
+        ImFlow::Pin* a=in->getLink().lock()->left();
+        StatorNode* n=static_cast<StatorNode*>(a->getParent());
+        n->recieveConstraint(constr[0] / getTransform(recipe.inputs[i], recipe.outputs[0]));
+        i++;
+      }
+    //}
+  }
+
+  double  getTransform(PartWithQuantity& in, PartWithQuantity& out) {
+    return out.quantity / in.quantity;
   }
 
   inline double  calcRatio(PartWithQuantity& in) {return (getInVal<double>(in.name) / in.quantity);}

@@ -26,7 +26,7 @@ set(hpps
 
   srcs/guiInfo.hpp
 
-  srcs/stator/stator.hpp
+  srcs/stator/data.hpp
   srcs/stator/statorNode.hpp
   srcs/stator/factory.hpp
 )

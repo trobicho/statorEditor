@@ -1,5 +1,5 @@
 #include "statorGui.hpp"
-#include "stator/stator.hpp"
+#include "stator/data.hpp"
 #include "thread"
 #include <GLFW/glfw3.h>
 #include <boost/json/parse.hpp>

@@ -1,8 +1,10 @@
 #pragma once
 
-#include "stator/stator.hpp"
+#include "stator/data.hpp"
 #include "statorNode.hpp"
 #include <imgui.h>
+
+using namespace ImFlow;
 
 class FactoryNode: public StatorNode {
   public:
@@ -118,6 +120,8 @@ class FactoryEditor: public FactoryNode {
               placeNode<InputNode>();
             if (ImGui::Button("Add Output node"))
               placeNode<OutputNode>();
+            if (ImGui::Button("Add Balance node"))
+              placeNode<BalanceNode>();
           }
         });
       m_grid.droppedLinkPopUpContent([this](ImFlow::Pin *dragged)

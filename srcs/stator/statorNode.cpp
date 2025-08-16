@@ -11,5 +11,7 @@ StatorNodeType  sntFromString(std::string type) {
     return (SNT_IN_NODE);
   if (type == "SNT_OUT_NODE")
     return (SNT_OUT_NODE);
+  if (type == "SNT_BALANCE_NODE")
+    return (SNT_BALANCE_NODE);
   return (SNT_NA);
 }
