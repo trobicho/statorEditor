@@ -1,4 +1,5 @@
 #pragma once
+#include <algorithm>
 #include <boost/json.hpp>
 #include <functional>
 #include <imgui.h>
@@ -49,28 +50,35 @@ struct  StatorNode : ImFlow::BaseNode {
     int nbC = constraints.size();
     int nbOut = getOuts().size();
 
-    if(nbC+1 < nbOut){
+    if(nbC+1 == nbOut){
       constraints.push_back(c);
-      isBalanced = false;
-      return;
-    }
-    else if(nbC+1 == nbOut){
-      constraints.push_back(c);
-      isBalanced = true;
+      printConstr();
       balance(constraints);
+      isBalanced=true;
+      constraints.clear();
     }
     else{
-      constraints.clear();
-      isBalanced = false;
+      constraints.push_back(c);
+      isBalanced=false;
     }
 
   }
+
+  void printConstr(){
+    long id = getUID();
+    std::cout << id << std::endl << "constr" << std::endl;
+    for(auto d: constraints){
+      std::cout << d << " , ";
+    }
+    std::cout << std::endl;
+  }
   
-  void  calcJ(std::vector<double> constr) {
+  double  calcJ(std::vector<double> constr) {
     double v = 0.f;
     for(auto c: constr)
       v += c;
     balancedValue = v;
+    return v;
   }
 
   void propagate(double c) {
@@ -155,7 +163,7 @@ struct  OutputNode: public StatorNode {
 struct  BalanceNode: public StatorNode {
   BalanceNode(){
     setTitle("Balance");
-    addIO(1.0);
+    addIO(0.0);
   }
 
   void  addIO(double c) {
@@ -186,8 +194,16 @@ struct  BalanceNode: public StatorNode {
       ImGui::PopID();
       i++;
     }
+    if(ImGui::Button("Balance")){
+      std::cout << "balance" << std::endl;
+      balance();
+    }
 
-    balance();
+    if(!(constraints == constraintsLast)){
+      std::cout << "balance" << std::endl;
+      balance();
+    }
+    constraintsLast=constraints;
   }
 
   void  balance() {
@@ -230,6 +246,7 @@ struct  BalanceNode: public StatorNode {
 
   int ioCount = 0;
   std::vector<double> constraints;
+  std::vector<double> constraintsLast;
 };
 
 struct  PartNode: public StatorNode {
@@ -255,6 +272,16 @@ struct  PartNode: public StatorNode {
 
     double    ratio;
   };
+
+  void  balance(std::vector<double> constr) override {
+    calcJ(constr);
+    int i=0;
+    for(auto r: outRatios){
+      r->ratio=constr[i] / balancedValue;
+      i++;
+    }
+    propagate(balancedValue);
+  }
 
   void  addInPin() {
     inCount += 1;
@@ -299,6 +326,7 @@ struct  PartNode: public StatorNode {
 
   void  draw() override {
     int i = 0;
+    ImGui::Text("%f", balancedValue);
     for (auto& out: outRatios) {
       ImGui::SetNextItemWidth(100.f);
       ImGui::PushID(i);
@@ -376,7 +404,8 @@ struct  RecipeNode: public StatorNode {
     }
   }
 
-  void balance(std::vector<double> constr){
+  void balance(std::vector<double> constr) override{
+    std::cout << "recipeBalance" << std::endl;
     //for(auto c: constr){
       int i=0;
       for(auto in: getIns()){
@@ -384,6 +413,7 @@ struct  RecipeNode: public StatorNode {
           continue;
         ImFlow::Pin* a=in->getLink().lock()->left();
         StatorNode* n=static_cast<StatorNode*>(a->getParent());
+        //Need For multiple output recipes ----------------------------------------------------------------------!!!!!!!!!!!!
         n->recieveConstraint(constr[0] / getTransform(recipe.inputs[i], recipe.outputs[0]));
         i++;
       }

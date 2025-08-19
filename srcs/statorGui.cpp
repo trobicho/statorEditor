@@ -318,10 +318,10 @@ void  StatorGui::drawPartSelector() {
           for (auto& recipe: part.recipes) {
             std::string name = "recipe " + std::to_string(i);
             if (ImGui::BeginMenu(name.c_str())) {
-              recipe->drawPopUp();
               if (ImGui::Selectable("ADD")) {
                 m_factoryEditor.placeNodeAt<RecipeNode>({300, 100}, *recipe);
               }
+              recipe->drawPopUp();
               ImGui::EndMenu();
             }
             i++;
