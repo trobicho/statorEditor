@@ -1,7 +1,9 @@
 #pragma once
 
+#include "ImNodeFlow.h"
 #include "stator/data.hpp"
 #include "statorNode.hpp"
+#include <boost/json/array.hpp>
 #include <imgui.h>
 
 using namespace ImFlow;
@@ -30,7 +32,11 @@ class FactoryNode: public StatorNode {
       return (SNT_FACTORY_NODE);
     };
 
-    json::value     toJson() override {
+    json::value toJsonContent() override{
+      return 0;
+    }
+    /*
+    json::value     toJson() {
       json::array   nodesJson;
       auto          nodes = m_grid.getNodes();
       for (auto& nodePair: nodes) {
@@ -88,7 +94,7 @@ class FactoryNode: public StatorNode {
             break;
         }
       }
-    }
+    }*/
 
   protected:
     std::string   m_name = "";
@@ -147,5 +153,30 @@ class FactoryEditor: public FactoryNode {
         }
       }
       m_grid.update();
+    }
+
+    json::value toJson(){
+      json::array nodesJsonArr, linksJsonArr;
+      for(auto n: m_grid.getNodes()){
+        json::value nodeJson = static_cast<StatorNode*>(&*n.second)->toJson();
+        nodesJsonArr.emplace_back(nodeJson);
+      }
+      for(auto lnk: m_grid.getLinks()){
+        auto l = lnk.lock();
+        auto pl = l->left();
+        auto pr = l->right();
+        json::value linkJson = {
+          {"left", {
+            {"pinUid", pl->getUid()},
+            {"nodeUid", pl->getParent()->getUID()}
+          }},
+          {"right", {
+            {"pinUid", pr->getUid()},
+            {"nodeUid", pr->getParent()->getUID()}
+          }}
+        };
+        linksJsonArr.emplace_back(linkJson);
+      }
+      return json::value({{"nodes", nodesJsonArr}, {"links", linksJsonArr}});
     }
 };

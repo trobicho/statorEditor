@@ -1,8 +1,12 @@
 #include "statorGui.hpp"
 #include "stator/data.hpp"
+#include "lib/ImGuiFileDialog/ImGuiFileDialog.h"
 #include "thread"
 #include <GLFW/glfw3.h>
+#include <boost/json/array.hpp>
+#include <boost/json/object.hpp>
 #include <boost/json/parse.hpp>
+#include <boost/json/serialize.hpp>
 #include <filesystem>
 #include <fstream>
 #include <hephaestus/core/hephResult.hpp>
@@ -10,21 +14,95 @@
 #include <imgui.h>
 #include <imgui_impl_vulkan.h>
 #include <iostream>
+#include <istream>
 #include <iterator>
 #include <memory>
 #include <string>
 #include <vulkan/vulkan_core.h>
 
+void pretty_print( std::ostream& os, json::value const& jv, std::string* indent = nullptr){
+  std::string indent_;
+  if(! indent)
+    indent = &indent_;
+  switch(jv.kind()){
+    case json::kind::object:{
+      os << "{\n";
+      indent->append(4, ' ');
+      auto const& obj = jv.get_object();
+      if(! obj.empty())
+      {
+        auto it = obj.begin();
+        for(;;)
+        {
+          os << *indent << json::serialize(it->key()) << " : ";
+          pretty_print(os, it->value(), indent);
+          if(++it == obj.end())
+            break;
+          os << ",\n";
+        }
+      }
+      os << "\n";
+      indent->resize(indent->size() - 4);
+      os << *indent << "}";
+      break;
+    }
+    case json::kind::array:{
+      os << "[\n";
+      indent->append(4, ' ');
+      auto const& arr = jv.get_array();
+      if(! arr.empty())
+      {
+        auto it = arr.begin();
+        for(;;)
+        {
+          os << *indent;
+          pretty_print( os, *it, indent);
+          if(++it == arr.end())
+            break;
+          os << ",\n";
+        }
+      }
+      os << "\n";
+      indent->resize(indent->size() - 4);
+      os << *indent << "]";
+      break;
+    }
+    case json::kind::string:{
+      os << json::serialize(jv.get_string());
+      break;
+    }
+    case json::kind::uint64:
+    case json::kind::int64:
+    case json::kind::double_:
+      os << jv;
+      break;
+
+    case json::kind::bool_:
+      if(jv.get_bool())
+        os << "true";
+      else
+        os << "false";
+      break;
+
+    case json::kind::null:
+      os << "null";
+      break;
+  }
+
+  if(indent->empty())
+    os << "\n";
+}
+
 void  StatorGui::callbackWindowSize(GLFWwindow* window, int width, int height) {
-	HEPH_PRINT_RESULT(HephResult(vkQueueWaitIdle(m_device.queues[0].queue), "Error waiting for queue {{}}!"));
+  HEPH_PRINT_RESULT(HephResult(vkQueueWaitIdle(m_device.queues[0].queue), "Error waiting for queue {{}}!"));
   m_width = width;
   m_height = height;
 
-	m_swapchain.destroy();
+  m_swapchain.destroy();
   vkDestroySurfaceKHR(m_hephInstance.vulkanInstance, m_surface, m_device.pAllocationCallbacks);
   HEPH_PRINT_RESULT(HephResult(glfwCreateWindowSurface(m_hephInstance.vulkanInstance, m_mainWindow
-        , m_device.pAllocationCallbacks, &m_surface), "Failed to create Surface {{}} !"));
-	auto surfaceOld = m_surface;
+          , m_device.pAllocationCallbacks, &m_surface), "Failed to create Surface {{}} !"));
+  auto surfaceOld = m_surface;
   m_swapchain.recreate(VkExtent2D{static_cast<uint32_t>(width), static_cast<uint32_t>(height)}, m_surface);
 
   ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -38,7 +116,11 @@ void  StatorGui::callbackKey(GLFWwindow* window, int key, int scancode, int acti
   if (key == GLFW_KEY_ESCAPE) {
   }
 
-	if (key == GLFW_KEY_F5 && action == GLFW_PRESS) {
+  if (key == GLFW_KEY_F5 && action == GLFW_PRESS) {
+  }
+
+  if (key == GLFW_KEY_E) {
+    //m_factoryEditor.export();
   }
 
 	if (mods & GLFW_MOD_CONTROL && key == GLFW_KEY_Q) {
@@ -82,7 +164,7 @@ void  StatorGui::callbackPathDrop(GLFWwindow* window, int count, const char** pa
   }
 }
 
-StatorGui::StatorGui(std::string partsJsonPath, std::string recipesJsonPath) {
+StatorGui::StatorGui(std::string partsJsonPath, std::string recipesJsonPath, std::string userRecipesJsonPath) {
   glfwInit();
   std::ifstream jsonPartsFile(partsJsonPath);
   json::value docParts = json::parse(jsonPartsFile);
@@ -93,6 +175,18 @@ StatorGui::StatorGui(std::string partsJsonPath, std::string recipesJsonPath) {
   std::ifstream jsonRecipesFile(recipesJsonPath);
   json::value docRecipes = json::parse(jsonRecipesFile);
   for (auto& recipe: docRecipes.as_object()["recipes"].as_array()) {
+    recipesGlobalArray.push_back(Recipe(recipe.as_object()));
+  }
+
+  std::ifstream jsonUserFile(userRecipesJsonPath);
+  if(jsonUserFile.fail()){
+    std::cout << "Creating User Recipe File..." << std::endl;
+    createUserFile(userRecipesJsonPath);
+    std::cout << "  Done : " << userRecipesJsonPath << std::endl;
+    jsonUserFile.open(userRecipesJsonPath);
+  }
+  json::value docUser = json::parse(jsonUserFile);
+  for (auto& recipe: docUser.as_object()["recipes"].as_array()) {
     recipesGlobalArray.push_back(Recipe(recipe.as_object()));
   }
 
@@ -279,6 +373,17 @@ void  StatorGui::drawTopBar() {
       if (ImGui::BeginMenu("File")) {
         if (ImGui::MenuItem("Open...")) {
         }
+        if (ImGui::MenuItem("Save")) {
+          std::cout << "Creating Save File ./userSave1.json..." << std::endl;
+          factorySave("./userSave1.json");
+          std::cout << "      Done." << std::endl;
+          //ImGui::Begin("Save");
+          //ImGui::End();
+        }
+        if (ImGui::MenuItem("Export")) {
+        }
+        if (ImGui::MenuItem("Add Recipe")) {
+        }
         ImGui::EndMenu();
       }
       if (ImGui::BeginMenu("Edit")) {
@@ -333,4 +438,29 @@ void  StatorGui::drawPartSelector() {
       ImGui::End();
     }
   }
+}
+
+void StatorGui::factorySave(std::string savefileJsonPath){
+  std::ofstream jsonSaveFile(savefileJsonPath);
+  pretty_print(jsonSaveFile, m_factoryEditor.toJson());
+  jsonSaveFile.close();
+}
+
+void StatorGui::factoryLoad(std::string savefileJsonPath){
+  std::ifstream jsonSaveFile(savefileJsonPath);
+  json::value docEditor = json::parse(jsonSaveFile);
+  m_factoryEditor.fromJson(docEditor);
+  jsonSaveFile.close();
+}
+
+void StatorGui::createUserFile(std::string userRecipesJsonPath){
+  std::ofstream jsonUserFile(userRecipesJsonPath);
+  json::object doc={
+    {"recipes", json::array()}
+  };
+  
+  std::string docStr = json::serialize(doc);
+  std::cout << docStr << std::endl;
+  jsonUserFile << docStr;
+  jsonUserFile.close();
 }

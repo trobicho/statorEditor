@@ -10,6 +10,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(APP_ROOT ${CMAKE_CURRENT_LIST_DIR})
 
 set(IMNODEFLOW_DIR ${CMAKE_CURRENT_LIST_DIR}/lib/ImNodeFlow)
+set(IMGUIFILE_DIALOG_DIR ${CMAKE_CURRENT_LIST_DIR}/lib/ImGuiFileDialog)
 include(FetchContent)
 
 set(cpps
@@ -40,10 +41,22 @@ FetchContent_Declare(ImNodeFlow
 FetchContent_GetProperties(ImNodeFlow)
 FetchContent_MakeAvailable(ImNodeFlow)
 
+
+#FetchContent_Declare(ImGuiFileDialog
+#     GIT_REPOSITORY "https://github.com/aiekick/ImGuiFileDialog.git"
+#     GIT_TAG "master"
+#     SOURCE_DIR ${IMGUIFILE_DIALOG_DIR}
+#)
+#FetchContent_GetProperties(ImGuiFileDialog)
+#FetchContent_MakeAvailable(ImGuiFileDialog)
+
 list(APPEND imnode_flow_sources
   ${IMNODEFLOW_DIR}/src/ImNodeFlow.cpp)
 
-add_executable(${PROJECT_NAME} ${cpps} ${hpps} ${imnode_flow_sources})
+#list(APPEND imguifile_dialog_sources
+#  ${IMGUIFILE_DIALOG_DIR}/ImGuiFileDialog.cpp)
+
+add_executable(${PROJECT_NAME} ${cpps} ${hpps} ${imnode_flow_sources} ${IMGUIFILE_DIALOG_DIR}/ImGuiFileDialog.cpp)
 
 
 target_link_libraries(${PROJECT_NAME} PRIVATE hephaestus)

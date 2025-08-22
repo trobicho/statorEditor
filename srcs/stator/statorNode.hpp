@@ -42,9 +42,30 @@ struct  StatorNode : ImFlow::BaseNode {
 
   virtual void            drawPopUp() {;}
   virtual StatorNodeType  statorNodeType() = 0;
-  virtual json::value     toJson() = 0;
+  virtual json::value     toJsonContent() = 0;
   virtual void            fromJson(json::value value) {;}
   virtual void            balance(std::vector<double> contr){;}
+
+  json::value toJson(){
+    json::array ins,outs;
+    for(auto& in: getIns())
+      ins.emplace_back(json::value({{"uid", in->getUid()},{"name", in->getName()}}));
+    for(auto& out: getOuts())
+      outs.emplace_back(json::value({{"uid", out->getUid()},{"name", out->getName()}}));
+
+    json::value doc = {
+      {"uid", getUID()},
+      {"name", getName()},
+      {"pos",{
+        {"x", getPos().x},
+        {"y", getPos().y}
+      }},
+      {"nodeType", statorNodeType()},
+      {"content", toJsonContent()},
+    };
+
+    return doc;
+  }
 
   void  recieveConstraint(double c) {
     int nbC = constraints.size();
@@ -61,7 +82,6 @@ struct  StatorNode : ImFlow::BaseNode {
       constraints.push_back(c);
       isBalanced=false;
     }
-
   }
 
   void printConstr(){
@@ -98,6 +118,7 @@ struct  StatorNode : ImFlow::BaseNode {
   std::vector<double> constraints;
   bool isBalanced = false;
   double balancedValue = 0;
+  double value = 0;
 };
 
 struct  InputNode: public StatorNode {
@@ -122,9 +143,8 @@ struct  InputNode: public StatorNode {
     return (SNT_IN_NODE);
   };
 
-  json::value     toJson() override {
+  json::value     toJsonContent() override {
     json::object value = {
-      {"type", "SNT_IN_NODE"},
       {"value", value},
     };
     return (value);
@@ -152,11 +172,8 @@ struct  OutputNode: public StatorNode {
     return (SNT_OUT_NODE);
   };
 
-  json::value     toJson() override {
-    json::object value = {
-      {"type", "SNT_OUT_NODE"},
-    };
-    return (value);
+  json::value     toJsonContent() override {
+    return 0;
   }
 };
 
@@ -237,9 +254,13 @@ struct  BalanceNode: public StatorNode {
     return (SNT_BALANCE_NODE);
   };
 
-  json::value     toJson() override {
+  json::value     toJsonContent() override {
+    json::array constr;
+    for(auto c: constraints)
+      constr.emplace_back(c);
     json::object value = {
-      {"type", "SNT_BALANCE_NODE"},
+      {"ioCount", ioCount},
+      {"constraints", constr}
     };
     return (value);
   }
@@ -357,14 +378,14 @@ struct  PartNode: public StatorNode {
     return (SNT_PART_NODE);
   };
 
-  json::value     toJson() override {
+  json::value     toJsonContent() override {
     json::array outs;
     for (auto& out: outRatios) {
-      outs.push_back(out->ratio);
+      outs.emplace_back(out->ratio);
     }
     json::object value = {
-      {"type", "SNT_PART_NODE"},
-      {"name", part.name},
+      {"value", this->value},
+      {"balancedValue", this->balancedValue},
       {"inCount", inCount},
       {"outs", outs},
     };
@@ -383,6 +404,7 @@ struct  PartNode: public StatorNode {
     }
   }
 
+  double                    value = 0;
   int                       inCount = 0;
   Part&                     part;
   std::vector<OutRatioPin*> outRatios;
@@ -453,9 +475,8 @@ struct  RecipeNode: public StatorNode {
     return (SNT_RECIPE_NODE);
   };
 
-  json::value     toJson() override {
+  json::value     toJsonContent() override {
     json::object value = {
-      {"type", "SNT_RECIPE_NODE"},
       {"recipeId", recipe.id},
     };
     return (value);

@@ -37,7 +37,7 @@ struct  StatorGuiWindowLayout {
 
 class	  StatorGui {
 	public:
-		StatorGui(std::string partsJsonPath, std::string recipesJsonPath);
+		StatorGui(std::string partsJsonPath, std::string recipesJsonPath, std::string userRecipesJsonPath);
 
 		HephResult	create();
     void  			run();
@@ -64,6 +64,10 @@ class	  StatorGui {
     void					drawTopBar();
     void          drawPartSelector();
 
+    void          factorySave(std::string savefileJsonPath);
+    void          factoryLoad(std::string savefileJsonPath);
+    void          createUserFile(std::string userRecipesJsonPath);
+
 		GLFWwindow*		m_mainWindow;
     int						m_width, m_height;
 		HephInstance	m_hephInstance;
@@ -76,6 +80,9 @@ class	  StatorGui {
 
 		bool					m_showPartSelectorPanel = true;
 		GuiWindowInfo	m_windowInfoPartSelectorPanel;
+
+    bool          m_showFactorySelectorPanel = true;
+    GuiWindowInfo m_windowInfoFactorySelectorPanel;
 
     StatorGuiWindowLayout         m_winLayout;
 

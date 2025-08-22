@@ -1,0 +1,133 @@
+{
+    "nodes" : [
+        {
+            "uid" : 105497071396368,
+            "name" : "Iron Plate",
+            "pos" : {
+                "x" : 7.5E2,
+                "y" : 3.5E2
+            },
+            "nodeType" : 3,
+            "content" : {
+                "value" : 0E0,
+                "balancedValue" : 1E0,
+                "inCount" : 1,
+                "outs" : [
+                    1E0
+                ]
+            }
+        },
+        {
+            "uid" : 105497071418464,
+            "name" : "Iron Ingot",
+            "pos" : {
+                "x" : 3E2,
+                "y" : 3.5E2
+            },
+            "nodeType" : 3,
+            "content" : {
+                "value" : 0E0,
+                "balancedValue" : 2.5E0,
+                "inCount" : 1,
+                "outs" : [
+                    6E-1,
+                    4E-1
+                ]
+            }
+        },
+        {
+            "uid" : 105497064509536,
+            "name" : "Recipe",
+            "pos" : {
+                "x" : 5.3E2,
+                "y" : 3.5E2
+            },
+            "nodeType" : 2,
+            "content" : {
+                "recipeId" : 0
+            }
+        },
+        {
+            "uid" : 105497064505584,
+            "name" : "Input",
+            "pos" : {
+                "x" : 1E2,
+                "y" : 3.5E2
+            },
+            "nodeType" : 4,
+            "content" : {
+                "value" : {
+
+                }
+            }
+        },
+        {
+            "uid" : 105497071435904,
+            "name" : "Balance",
+            "pos" : {
+                "x" : 9.7E2,
+                "y" : 4.4E2
+            },
+            "nodeType" : 6,
+            "content" : {
+                "ioCount" : 2,
+                "constraints" : [
+                    1E0,
+                    1E0
+                ]
+            }
+        }
+    ],
+    "links" : [
+        {
+            "left" : {
+                "pinUid" : 470894893395316877,
+                "nodeUid" : 105497064505584
+            },
+            "right" : {
+                "pinUid" : 18237780286344590536,
+                "nodeUid" : 105497071418464
+            }
+        },
+        {
+            "left" : {
+                "pinUid" : 8829045983374213733,
+                "nodeUid" : 105497071418464
+            },
+            "right" : {
+                "pinUid" : 5860902232814892525,
+                "nodeUid" : 105497064509536
+            }
+        },
+        {
+            "left" : {
+                "pinUid" : 12922351060651364834,
+                "nodeUid" : 105497064509536
+            },
+            "right" : {
+                "pinUid" : 18237780286344590536,
+                "nodeUid" : 105497071396368
+            }
+        },
+        {
+            "left" : {
+                "pinUid" : 8829045983374213733,
+                "nodeUid" : 105497071396368
+            },
+            "right" : {
+                "pinUid" : 18237780286344590536,
+                "nodeUid" : 105497071435904
+            }
+        },
+        {
+            "left" : {
+                "pinUid" : 3416531182547192013,
+                "nodeUid" : 105497071418464
+            },
+            "right" : {
+                "pinUid" : 17199504447034647982,
+                "nodeUid" : 105497071435904
+            }
+        }
+    ]
+}

@@ -1,7 +1,7 @@
 #include "statorGui.hpp"
 
 int	main(int ac, char** av) {
-	StatorGui       stator("./Parts.json", "./Recipes.json");
+	StatorGui       stator("./Parts.json", "./Recipes.json", "./UserRecipes.json");
 	HephResult	    result = stator.create();
 
 	HEPH_PRINT_RESULT(result);
