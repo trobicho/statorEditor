@@ -46,6 +46,13 @@ struct  StatorNode : ImFlow::BaseNode {
   virtual void            fromJson(json::value value) {;}
   virtual void            balance(std::vector<double> contr){;}
 
+  /*
+  void fromJson(json::value doc){
+    setUID(doc.at_pointer("/uid").as_uint64());
+    setTitle(const std::string &title) 
+  }
+  */
+
   json::value toJson(){
     json::array ins,outs;
     for(auto& in: getIns())
@@ -145,12 +152,13 @@ struct  InputNode: public StatorNode {
 
   json::value     toJsonContent() override {
     json::object value = {
-      {"value", value},
+      {"value", this->value},
     };
     return (value);
   }
   void            fromJson(json::value value) override {
-    this->value = value.as_object()["value"].as_double();
+    this->value = value.at_pointer("/content/value").as_double();
+    //setTitle(static_cast<std::string>(value.at_pointer("/name").as_string()));
   }
 
   double  value = 0.0;
@@ -183,7 +191,7 @@ struct  BalanceNode: public StatorNode {
     addIO(0.0);
   }
 
-  void  addIO(double c) {
+  void  addIO(double c = 0.0) {
     ioCount++;
     double count=ioCount;
     constraints.push_back(c);
@@ -263,6 +271,18 @@ struct  BalanceNode: public StatorNode {
       {"constraints", constr}
     };
     return (value);
+  }
+
+  void fromJson(json::value value) override{
+    auto constr = value.at_pointer("/content/constraints").as_array();
+    int ioCnt = value.at_pointer("/content/ioCount").as_int64();
+    for(int i=1; i<ioCnt; i++)
+      addIO();
+    int i=0;
+    for(auto c: constr){
+      constraints[i] = constr[i].as_double();
+      i++;
+    }
   }
 
   int ioCount = 0;
@@ -392,7 +412,7 @@ struct  PartNode: public StatorNode {
     return (value);
   }
 
-  void            fromJson(json::value value) override {
+  void            fromJsonContent(json::value value) override {
     reset();
     int inN = value.as_object()["inCount"].as_int64();
     while (inCount < inN) {

@@ -5,6 +5,7 @@
 #include "statorNode.hpp"
 #include <boost/json/array.hpp>
 #include <imgui.h>
+#include <memory>
 
 using namespace ImFlow;
 
@@ -153,6 +154,53 @@ class FactoryEditor: public FactoryNode {
         }
       }
       m_grid.update();
+    }
+
+    std::shared_ptr<StatorNode> addNode(const ImVec2& pos, StatorNodeType nodeType){
+      switch(nodeType){
+        case SNT_IN_NODE:
+          return m_grid.addNode<InputNode>(pos);
+        case SNT_OUT_NODE:
+          return m_grid.addNode<OutputNode>(pos);
+        case SNT_BALANCE_NODE:
+          return m_grid.addNode<BalanceNode>(pos);
+        case SNT_PART_NODE:
+          return m_grid.addNode<PartNode>(pos);
+        case SNT_RECIPE_NODE:
+          return m_grid.addNode<RecipeNode>(pos);
+        case SNT_FACTORY_NODE:
+          return m_grid.addNode<FactoryNode>(pos);
+        case SNT_NA:
+          return nullptr;
+      }
+    }
+
+    void fromJson(json::value *docEditor){
+      for(auto n: docEditor->at_pointer("/nodes").as_array()){
+        ImVec2 pos(n.at_pointer("/pos/x").as_double(), n.at_pointer("/pos/y").as_double());
+        auto newNode = addNode(pos, static_cast<StatorNodeType>(n.at_pointer("/type").as_int64()));
+        //newNode->setUID(n.at_pointer("/uid").as_uint64());
+        newNode->fromJson(n);
+      }
+      auto nodes = m_grid.getNodes();
+      for(auto l: docEditor->at_pointer("/links").as_array()){
+        auto search = nodes.find(l.at_pointer("/left/nodeUid").as_uint64());
+        if (search == nodes.end()){
+          std::cout << l.at_pointer("/left/nodeUid").as_uint64() << " NodeUid Not found\n";
+          continue;
+        }
+        auto pinL = search->second->outPin(l.at_pointer("/left/pinUid"));
+        search = nodes.find(l.at_pointer("/right/nodeUid").as_uint64());
+        if (search == nodes.end()){
+          std::cout << l.at_pointer("/right/nodeUid").as_uint64() << " NodeUid Not found\n";
+          continue;
+        }
+        auto pinR = search->second->inPin(l.at_pointer("/left/pinUid"));
+        auto newL = std::make_shared<Link>(new Link(pinL, pinR, &m_grid));
+        pinL->setLink(newL);
+        pinR->setLink(newL);
+        m_grid.addLink(newL);
+      }
     }
 
     json::value toJson(){
